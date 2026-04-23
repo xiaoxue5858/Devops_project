@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['blue', 'green'], description: '部署版本')
+    }
+
+    environment {
+        IMAGE = "registry.cn-hangzhou.aliyuncs.com/xxx/nginx"
+        TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Build Image') {
+            steps {
+                sh "docker build -t $IMAGE:$TAG ./docker/v2"
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh "docker push $IMAGE:$TAG"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh "kubectl set image deployment/nginx-${params.DEPLOY_ENV} nginx=$IMAGE:$TAG"
+            }
+        }
+
+        stage('Switch Traffic') {
+            steps {
+                sh """
+                kubectl patch svc nginx-service \
+                -p '{"spec":{"selector":{"app":"nginx","version":"${params.DEPLOY_ENV}"}}}'
+                """
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh "kubectl get pods"
+            }
+        }
+    }
