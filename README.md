@@ -8,45 +8,41 @@
 
 
 架构设计
-Terraform
-   ↓
-阿里云 ACK（K8s）
-   ↓
-Docker 镜像（nginx v1 / v2）
-   ↓
-Kubernetes Deployment（blue / green）
-   ↓
-Service（流量控制）
-   ↓
-Jenkins（CI/CD + 蓝绿发布）
 
-项目结构
+1. Terraform
+2. 阿里云 ACK（K8s）
+3. Docker 镜像（nginx v1 / v2）
+4. Kubernetes Deployment（blue / green）
+5. Service（流量控制）
+6. Jenkins（CI/CD + 蓝绿发布）
+
+## 项目结构
+```text
 project/
 ├── terraform/          # 基础设施代码
 │   ├── main.tf
-│   ├── variables.tf
+│   ├── node_pool.tf
+│   ├── outputs.tf
+│   └── variables.tf
 │
 ├── docker/
 │   ├── v1/             # 蓝版本
 │   │   ├── Dockerfile
 │   │   └── index.html
-│   ├── v2/             # 绿版本
+│   └── v2/             # 绿版本
 │       ├── Dockerfile
 │       └── index.html
 │
-├── k8s/                #k8s集群
+├── k8s/                # K8s 集群 manifests
 │   ├── blue.yaml
 │   ├── green.yaml
-│   ├── service.yaml
+│   └── service.yaml
 │
-├── jenkins/           #自动化脚本
+├── jenkins/            # 自动化脚本
 │   └── Jenkinsfile
-│
-│
-│── User Guide/         # 使用指导
-│
+├
+│── User Guide/         # 使用指导文档
 │   ├── Jenkins blue-green deployment
-│   ├── Create a Kubernetes cluster using Terraform
-│
+│   └── Create a Kubernetes cluster using Terraform
 │
 └── README.md
